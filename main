@@ -1,0 +1,74 @@
+import sys
+import sqlite3
+from datetime import datetime
+
+
+class Connect:
+	def __init__(self):
+		self.conn = sqlite3.connect('test_task.db')
+		
+	def get_query(self, query):
+		try:
+			cur = self.conn.cursor()
+			cur.execute(query)
+			self.conn.commit()
+			self.conn.close()
+		except Exception as ex:
+			print(ex)
+			
+	def get_query_show(self, query):
+		try:
+			cur = self.conn.cursor()
+			cur.execute(query)
+			return cur.fetchall()
+		except Exception as ex:
+			print(ex)
+		finally:
+			self.conn.close()
+			
+	def create_table(self):
+		query = """CREATE TABLE IF NOT EXISTS Employee (id INTEGER PRIMARY KEY, Фамилия TEXT NOT NULL, Имя TEXT NOT NULL, Отчество TEXT NOT NULL, Дата_рождения DATE, Пол TEXT NOT NULL)"""
+		self.get_query(query)
+	
+		
+class Employee:
+		def __init__(self, ln, fn, mn, bd, s):
+			self.ln = ln
+			self.fn = fn
+			self.mn = mn
+			self.bd = bd
+			self.s = s
+			
+		def create(self):
+			query = f"INSERT INTO Employee (Фамилия, Имя, Отчество, Дата_рождения, Пол) VALUES ('{self.ln}', '{self.fn}', '{self.mn}', '{self.bd}', '{self.s}');"
+			conn = Connect()
+			conn.get_query(query)
+			
+		def age_calculate(self):
+			actual = datetime.now().year
+			print(self.bd.year)
+			print(f'{actual=}')
+			
+			
+		def __str__(self):
+			return f'{self.ln} {self.fn} {self.mn}'
+		
+a = sys.argv
+print(f'выбрана {a[1]} категория')
+if a[1] == '1':
+	connect = Connect()
+	connect.create_table()
+elif a[1] == '2':
+	employee = Employee(*a[2:7])
+	employee.create()
+	print(employee.age_calculate())
+elif a[1] == '3':
+	query = """
+	SELECT DISTINCT Фамилия, Имя, Отчество, Дата_рождения FROM Employee
+	ORDER BY Фамилия, Имя, Отчество"""
+	connect = Connect()
+	employees = connect.get_query_show(query)
+	for employee in employees:
+		print(employee)
+	
+	
