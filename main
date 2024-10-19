@@ -42,6 +42,19 @@ class Employee:
 			query = f"INSERT INTO Employee (Фамилия, Имя, Отчество, Дата_рождения, Пол) VALUES ('{self.ln}', '{self.fn}', '{self.mn}', '{self.bd}', '{self.s}');"
 			conn = Connect()
 			conn.get_query(query)
+		
+		@classmethod	
+		def create_list(cls, data: list) -> None:
+			conn = Connect()
+			for row in data:
+				print(row)
+				ln, fn, mn = row[0].split(' ')
+				bd = row[1]
+				s = row[2]
+				query = f"INSERT INTO Employee (Фамилия, Имя, Отчество, Дата_рождения, Пол) VALUES ('{ln}', '{fn}', '{mn}', '{bd}', '{s}')"
+			conn.get_query(query)
+				
+			
 			
 		def age_calculate(self):
 			actual = datetime.now().year
@@ -72,15 +85,12 @@ if __name__=='__main__':
 	elif a[1] == '4':
 		fill = Fill()
 		for _ in range(10):
-			f = fill.gen().split(' ')
-			fio, bd, s = ' '.join(f[:3]), f[3], f[4]
-			employee = Employee(fio, bd, s)
-			employee.create()
-		for _ in range(10):
-			f_f = fill.gen_f().split(' ')
-			fio, bd, s = ' '.join(f_f[:3]), f_f[3], f_f[4]
-			employee_f = Employee(fio, bd, s)
-			employee_f.create()
+			lst = list()
+			for i in range(5):
+				f = fill.gen().split(' ')
+				employeer = ' '.join(f[:3]), f[3], f[4]
+				lst.append(employeer)
+			Employee.create_list(lst)
 	
 	
 	
