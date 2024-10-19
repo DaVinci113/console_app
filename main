@@ -1,7 +1,7 @@
 import sys
 import sqlite3
 from datetime import datetime
-
+from fill import Fill
 
 class Connect:
 	def __init__(self):
@@ -12,9 +12,10 @@ class Connect:
 			cur = self.conn.cursor()
 			cur.execute(query)
 			self.conn.commit()
-			self.conn.close()
 		except Exception as ex:
 			print(ex)
+		finally:
+			self.conn.close()
 			
 	def get_query_show(self, query):
 		try:
@@ -32,10 +33,8 @@ class Connect:
 	
 		
 class Employee:
-		def __init__(self, ln, fn, mn, bd, s):
-			self.ln = ln
-			self.fn = fn
-			self.mn = mn
+		def __init__(self, fio, bd, s):
+			self.ln, self.fn, self.mn = fio.split(' ')
 			self.bd = bd
 			self.s = s
 			
@@ -46,29 +45,43 @@ class Employee:
 			
 		def age_calculate(self):
 			actual = datetime.now().year
-			print(self.bd.year)
-			print(f'{actual=}')
-			
+			date = int(self.bd.split('-')[0])
+			print('age is', actual - date)
 			
 		def __str__(self):
 			return f'{self.ln} {self.fn} {self.mn}'
-		
-a = sys.argv
-print(f'выбрана {a[1]} категория')
-if a[1] == '1':
-	connect = Connect()
-	connect.create_table()
-elif a[1] == '2':
-	employee = Employee(*a[2:7])
-	employee.create()
-	print(employee.age_calculate())
-elif a[1] == '3':
-	query = """
-	SELECT DISTINCT Фамилия, Имя, Отчество, Дата_рождения FROM Employee
-	ORDER BY Фамилия, Имя, Отчество"""
-	connect = Connect()
-	employees = connect.get_query_show(query)
-	for employee in employees:
-		print(employee)
+			
+
+if __name__=='__main__':
+	a = sys.argv
+	print(f'выбрана {a[1]} категория')
+	if a[1] == '1':
+		connect = Connect()
+		connect.create_table()
+	elif a[1] == '2':
+		employee = Employee(*a[2:5])
+		employee.create()
+		print(employee.age_calculate())
+	elif a[1] == '3':
+		current = datetime.now()
+		query = """SELECT DISTINCT Фамилия, Имя, Отчество, Дата_рождения, strftime('%Y-%m-%d', 'now') - strftime('%Y-%m-%d', Дата_рождения) FROM Employee ORDER BY Фамилия, Имя, Отчество"""
+		connect = Connect()
+		employees = connect.get_query_show(query)
+		for employee in employees:
+			print(employee)
+	elif a[1] == '4':
+		fill = Fill()
+		for _ in range(10):
+			f = fill.gen().split(' ')
+			fio, bd, s = ' '.join(f[:3]), f[3], f[4]
+			employee = Employee(fio, bd, s)
+			employee.create()
+		for _ in range(10):
+			f_f = fill.gen_f().split(' ')
+			fio, bd, s = ' '.join(f_f[:3]), f_f[3], f_f[4]
+			employee_f = Employee(fio, bd, s)
+			employee_f.create()
+	
+	
 	
 	
