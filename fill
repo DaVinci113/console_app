@@ -47,18 +47,3 @@ class Fill:
 		
 	def gen_f(self):
 		return(f'{self.gen_fio_f()} {self.gen_date()} m')
-	
-	
-		
-if __name__ == '__main__':
-	with open('fio_list.txt', 'w') as f:
-		fill = Fill()
-		for _ in range(100000):
-			f.write(fill.gen()+'\n')
-		for _ in range(100):
-			f.write(fill.gen_f()+'\n')
-		
-		
-
-			
-		
