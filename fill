@@ -1,0 +1,64 @@
+import random as r
+
+class Fill:
+	
+	def gen_fio(self):
+		fio = ''
+		for _ in range(3):
+			length = r.randint(3, 12)
+			upper = chr(r.randint(65, 90))
+			fio += upper
+			for _ in range(length):
+				char = chr(r.randint(97, 122))
+				fio += char
+			fio += ' '
+		return fio.rstrip()
+		
+	def gen_fio_f(self):
+		fio = ''
+		for _ in range(3):
+			length = r.randint(3, 12)
+			upper = 'F'
+			fio += upper
+			for _ in range(length):
+				char = chr(r.randint(97, 122))
+				fio += char
+			fio += ' '
+		return f'{fio.rstrip()}'
+	
+	def gen_date(self):
+		year = r.randint(1965, 2006)
+		month = str(r.randint(1, 12))
+		day = str(r.randint(1, 30))
+		if not int(month)//10:
+			month = '0' + month
+		if not int(day)//10:
+			day = '0' + day
+		return f'{year}-{month}-{day}'
+	
+	def gen_sex(self):
+		ind = r.randint(0, 1)
+		if ind:
+			return 'm'
+		return 'f'
+		
+	def gen(self):
+		return(f'{self.gen_fio()} {self.gen_date()} {self.gen_sex()}')
+		
+	def gen_f(self):
+		return(f'{self.gen_fio_f()} {self.gen_date()} m')
+	
+	
+		
+if __name__ == '__main__':
+	with open('fio_list.txt', 'w') as f:
+		fill = Fill()
+		for _ in range(100000):
+			f.write(fill.gen()+'\n')
+		for _ in range(100):
+			f.write(fill.gen_f()+'\n')
+		
+		
+
+			
+		
