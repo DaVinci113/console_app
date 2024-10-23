@@ -1,30 +1,21 @@
 import random as r
+import sqlite3
 
 class Fill:
 	
-	def gen_fio(self):
+	def gen_fio(self, f=False):
 		fio = ''
 		for _ in range(3):
 			length = r.randint(3, 12)
 			upper = chr(r.randint(65, 90))
+			if f:
+				upper = 'F'
 			fio += upper
 			for _ in range(length):
 				char = chr(r.randint(97, 122))
 				fio += char
 			fio += ' '
 		return fio.rstrip()
-		
-	def gen_fio_f(self):
-		fio = ''
-		for _ in range(3):
-			length = r.randint(3, 12)
-			upper = 'F'
-			fio += upper
-			for _ in range(length):
-				char = chr(r.randint(97, 122))
-				fio += char
-			fio += ' '
-		return f'{fio.rstrip()}'
 	
 	def gen_date(self):
 		year = r.randint(1965, 2006)
@@ -42,8 +33,28 @@ class Fill:
 			return 'm'
 		return 'f'
 		
-	def gen(self):
-		return(f'{self.gen_fio()} {self.gen_date()} {self.gen_sex()}')
+	def gen(self, f=False):
+		if f:
+			fio = self.gen_fio(f)
+		else:
+			fio = self.gen_fio()
+		return(f'{fio} {self.gen_date()} {self.gen_sex()}\n')
 		
-	def gen_f(self):
-		return(f'{self.gen_fio_f()} {self.gen_date()} m')
+	def gen_pack_fio(self, f=False):
+		pack = ''
+		while len(pack.split('\n')) < 101:
+			pack += self.gen()
+		return pack
+		
+	def save_pack_fio(self):
+		conn = sqlite3.connect('test_task.db')
+		cur = conn.cursor()
+		for data in self.gen_pack_fio().split('\n'):
+			sp_data = data.split(' ')
+			if len(sp_data) > 1:
+				f, l, m, bd, s = sp_data
+				query = f"INSERT INTO Employee (Фамилия, Имя, Отчество, Дата_рождения, Пол) VALUES ('{f}', '{l}', '{m}', '{bd}', '{s}')"
+				cur.execute(query)
+		conn.commit()
+		conn.close()
+			
