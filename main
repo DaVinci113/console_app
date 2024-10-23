@@ -2,6 +2,8 @@ import sys
 import sqlite3
 from datetime import datetime
 from fill import Fill
+from time import time
+import sys
 
 class Connect:
 	def __init__(self):
@@ -16,6 +18,14 @@ class Connect:
 			print(ex)
 		finally:
 			self.conn.close()
+			
+	def mass_add(self, query):
+			try:
+				cur = self.conn.cursor()
+				cur.execute(query)
+				self.conn.commit()
+			except Exception as ex:
+				print(ex)
 			
 	def get_query_show(self, query):
 		try:
@@ -40,21 +50,7 @@ class Employee:
 			
 		def create(self):
 			query = f"INSERT INTO Employee (Фамилия, Имя, Отчество, Дата_рождения, Пол) VALUES ('{self.ln}', '{self.fn}', '{self.mn}', '{self.bd}', '{self.s}');"
-			conn = Connect()
-			conn.get_query(query)
-		
-		@classmethod	
-		def create_list(cls, data: list) -> None:
-			conn = Connect()
-			for row in data:
-				print(row)
-				ln, fn, mn = row[0].split(' ')
-				bd = row[1]
-				s = row[2]
-				query = f"INSERT INTO Employee (Фамилия, Имя, Отчество, Дата_рождения, Пол) VALUES ('{ln}', '{fn}', '{mn}', '{bd}', '{s}')"
-			conn.get_query(query)
-				
-			
+			return query
 			
 		def age_calculate(self):
 			actual = datetime.now().year
@@ -67,31 +63,59 @@ class Employee:
 
 if __name__=='__main__':
 	a = sys.argv
+	connect = Connect()
 	print(f'выбрана {a[1]} категория')
 	if a[1] == '1':
-		connect = Connect()
 		connect.create_table()
 	elif a[1] == '2':
 		employee = Employee(*a[2:5])
-		employee.create()
+		query = employee.create()
+		connect.get_query(query)
 		print(employee.age_calculate())
 	elif a[1] == '3':
 		current = datetime.now()
 		query = """SELECT DISTINCT Фамилия, Имя, Отчество, Дата_рождения, strftime('%Y-%m-%d', 'now') - strftime('%Y-%m-%d', Дата_рождения) FROM Employee ORDER BY Фамилия, Имя, Отчество"""
-		connect = Connect()
 		employees = connect.get_query_show(query)
 		for employee in employees:
 			print(employee)
 	elif a[1] == '4':
-		fill = Fill()
-		for _ in range(10):
-			lst = list()
-			for i in range(5):
-				f = fill.gen().split(' ')
-				employeer = ' '.join(f[:3]), f[3], f[4]
-				lst.append(employeer)
-			Employee.create_list(lst)
-	
-	
-	
+		f = Fill()
+		for _ in range(9000):
+			f.save_pack_fio()
+	elif a[1] == '5':
+		start = time()
+		query = """SELECT DISTINCT Фамилия, Имя, Отчество, Дата_рождения, strftime('%Y-%m-%d', 'now') - strftime('%Y-%m-%d', Дата_рождения) FROM Employee WHERE Фамилия LIKE 'F%' AND Пол='m' ORDER BY Фамилия, Имя, Отчество"""
+		employees = connect.get_query_show(query)
+		for employee in employees:
+			print(employee)
+		print('Время выполнения: ', time()-start)
+		
+	elif a[1] == '6':
+		# Создает индекс
+		# попробовать without rowid
+		query = """CREATE INDEX IF NOT EXISTS Фамилия_idx ON Employee (Фамилия, Имя, Отчество) WHERE Фамилия LIKE 'F%'"""
+		employees = connect.get_query(query)
+		
+	elif a[1] == '8':
+		# Удаляет выбранный индекс
+		query = """DROP INDEX IF EXISTS
+		'Фамилия_idx' """
+		employee = connect.get_query(query)
+		
+	elif a[1] == '9':
+		# Показывает все созданные индексы
+		
+		query = """SELECT * FROM sqlite_master WHERE type = 'index' """
+		employee = connect.get_query_show(query)
+		print(employee)
+		
+	elif a[1] == '10':
+		for _ in range(10000):
+			fill = Fill()
+			f = fill.gen().split(' ')
+			fio, bd, s = ' '.join(f[:3]), f[3], f[4]
+			ln, fn, mn = fio.split(' ')
+			query = f"INSERT INTO Employee (Фамилия, Имя, Отчество, Дата_рождения, Пол) VALUES ('{ln}', '{fn}', '{mn}', '{bd}', '{s}')"
+			connect.mass_add(query)
+		
 	
