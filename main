@@ -80,8 +80,9 @@ if __name__=='__main__':
 			print(employee)
 	elif a[1] == '4':
 		f = Fill()
-		for _ in range(9000):
+		for _ in range(1000):
 			f.save_pack_fio()
+		f.save_pack_fio(f)
 	elif a[1] == '5':
 		start = time()
 		query = """SELECT DISTINCT Фамилия, Имя, Отчество, Дата_рождения, strftime('%Y-%m-%d', 'now') - strftime('%Y-%m-%d', Дата_рождения) FROM Employee WHERE Фамилия LIKE 'F%' AND Пол='m' ORDER BY Фамилия, Имя, Отчество"""
@@ -92,8 +93,8 @@ if __name__=='__main__':
 		
 	elif a[1] == '6':
 		# Создает индекс
-		# попробовать without rowid
-		query = """CREATE INDEX IF NOT EXISTS Фамилия_idx ON Employee (Фамилия, Имя, Отчество) WHERE Фамилия LIKE 'F%'"""
+		
+		query = """CREATE INDEX IF NOT EXISTS Фамилия_idx ON Employee (Фамилия, Имя, Отчество, Дата_рождения, Пол) WHERE Фамилия LIKE 'F%' AND Пол='m'"""
 		employees = connect.get_query(query)
 		
 	elif a[1] == '8':
@@ -108,14 +109,4 @@ if __name__=='__main__':
 		query = """SELECT * FROM sqlite_master WHERE type = 'index' """
 		employee = connect.get_query_show(query)
 		print(employee)
-		
-	elif a[1] == '10':
-		for _ in range(10000):
-			fill = Fill()
-			f = fill.gen().split(' ')
-			fio, bd, s = ' '.join(f[:3]), f[3], f[4]
-			ln, fn, mn = fio.split(' ')
-			query = f"INSERT INTO Employee (Фамилия, Имя, Отчество, Дата_рождения, Пол) VALUES ('{ln}', '{fn}', '{mn}', '{bd}', '{s}')"
-			connect.mass_add(query)
-		
 	
