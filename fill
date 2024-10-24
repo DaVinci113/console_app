@@ -34,22 +34,30 @@ class Fill:
 		return 'f'
 		
 	def gen(self, f=False):
+		sex = self.gen_sex()
 		if f:
 			fio = self.gen_fio(f)
+			sex = 'm'
 		else:
 			fio = self.gen_fio()
-		return(f'{fio} {self.gen_date()} {self.gen_sex()}\n')
+		return(f'{fio} {self.gen_date()} {sex}\n')
 		
 	def gen_pack_fio(self, f=False):
 		pack = ''
 		while len(pack.split('\n')) < 101:
+			if f:
+				pack += self.gen(f)
 			pack += self.gen()
 		return pack
 		
-	def save_pack_fio(self):
+	def save_pack_fio(self, f=False):
 		conn = sqlite3.connect('test_task.db')
 		cur = conn.cursor()
-		for data in self.gen_pack_fio().split('\n'):
+		if f:
+			gen_pack = self.gen_pack_fio(f)
+		else:
+			gen_pack = self.gen_pack_fio()
+		for data in gen_pack.split('\n'):
 			sp_data = data.split(' ')
 			if len(sp_data) > 1:
 				f, l, m, bd, s = sp_data
